@@ -1,5 +1,5 @@
 CC=g++
 
-readgraphs: read_graphs.cpp
-	$(CC) -o readgraphs read_graphs.cpp graph.h
+dgtree: main.cpp read_graphs.cpp dgtree.cpp graph.h dgtree.h 
+	$(CC) -o dgtree main.cpp dgtree.cpp read_graphs.cpp graph.h dgtree.h
 

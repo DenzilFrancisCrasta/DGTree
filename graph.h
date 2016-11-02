@@ -12,3 +12,5 @@ struct Graph {
   vector<string> vertex_labels; 
   vector<list <pair <int, int> >  > *adjacencyList;  
 };
+
+void printGraph(Graph &g);
