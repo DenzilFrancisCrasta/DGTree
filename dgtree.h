@@ -29,5 +29,6 @@ struct DGTreeNode {
 
 
 DGTreeNode *DGTreeConstruct(map<int, Graph *>& data_graphs);
+void TreeGrow(DGTreeNode *root);
 
    

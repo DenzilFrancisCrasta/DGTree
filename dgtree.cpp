@@ -1,8 +1,5 @@
 #include "dgtree.h"
 
-void TreeGrow(DGTreeNode *root) {
-       
-}
 
 DGTreeNode *DGTreeConstruct(map<int, Graph *>& data_graphs) {
    DGTreeNode *root;
@@ -47,3 +44,6 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *>& data_graphs) {
 }
 
 
+void TreeGrow(DGTreeNode *root) {
+       
+}
