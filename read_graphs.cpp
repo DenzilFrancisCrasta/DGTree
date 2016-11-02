@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <string>
 #include <vector>
 #include <list>
@@ -77,8 +78,6 @@ int main() {
 
   } // end while reading all data graphs
 
-
-  printGraph(*data_graphs[0]);
-
+  printGraph(*data_graphs[1]);
   return 0;
 }
