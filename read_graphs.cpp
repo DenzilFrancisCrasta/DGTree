@@ -1,20 +1,9 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
-#include <vector>
-#include <list>
-#include <utility>
-#include <iterator>
+#include "graph.h"
 
 using namespace std;
-
-struct Graph {
-  int id;
-  int vertex_count;
-  int edge_count;
-  vector<string> vertex_labels; 
-  vector<list <pair <int, int> >  > *adjacencyList;  
-};
 
 void printGraph(Graph &g) {
    cout << "==================================================" << endl;
@@ -47,7 +36,6 @@ void printGraph(Graph &g) {
 
 int main() {
   char c; 
-  int vertex_count, edge_count;
   vector<Graph *> data_graphs;
 
   while (cin >> c) {
