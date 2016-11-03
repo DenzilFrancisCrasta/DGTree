@@ -5,12 +5,14 @@
 
 using namespace std;
 
+typedef vector<list<pair<int, int> > > adj_list_t;
+
 struct Graph {
   int id;
   int vertex_count;
   int edge_count;
   vector<string> vertex_labels; 
-  vector<list <pair <int, int> >  > *adjacencyList;  
+  adj_list_t *adjacencyList;  
 };
 
 void printGraph(Graph &g);

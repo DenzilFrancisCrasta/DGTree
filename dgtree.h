@@ -18,7 +18,7 @@ struct DGTreeNode {
   vector<DGTreeNode *>           children; 
   vector<string> *vertex_labels; // labels of vertex of feature graph
   /* feature graph for the current node */
-  vector<list<pair<int, int> > > *fgraph; 
+  adj_list_t *fgraph; 
   /* the edge used to grow the feature graph of parent node*/
   edge                           *grow_edge;  //
   e_type                         edge_type;  

@@ -55,6 +55,22 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
    return root;
 }
 
+bool isAnEdge(adj_list_t *adj_list, int u, int v) {
+    
+    // u is larger than the size of the list 
+    if (u >= adj_list->size())
+        return false;
+    
+    // get the edge list of u
+    edge_list& elist = (*(adj_list))[u];
+    
+    for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+        if (elist_itr->first == v)
+            return true;
+    }    
+
+    return false;
+}
 
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
@@ -109,8 +125,11 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                      uj = f_size + 1; //uj is given index as |f| + 1 since it is a new node being added
                   }
 
-                  if ( uj > ui ) 
-                      ;
+
+                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
+
+                  }
+
 
               } // end for every neighbor of f(ui) in G 
 
