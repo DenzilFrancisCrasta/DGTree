@@ -20,15 +20,15 @@ struct DGTreeNode {
   /* the edge used to grow the feature graph of parent node*/
   edge                           *grow_edge;  //
   e_type                         edge_type;  
-  map<int, Graph *>              S; // set of data graphs which cover the feature graph
-  map<int, Graph *>              S_star; // subset of data graphs which cover the feature graph
-  map<int, list<vector<int> *> >  matches_of;
+  map<int, Graph *>              *S; // set of data graphs which cover the feature graph
+  map<int, Graph *>              *S_star; // subset of data graphs which cover the feature graph
+  map<int, list<vector<int> *> > *matches_of;
 
   float                          score;  // score of fgraph 
 };
 
 
-DGTreeNode *DGTreeConstruct(map<int, Graph *>& data_graphs);
-void TreeGrow(DGTreeNode *root);
-
+DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs);
+void treeGrow(DGTreeNode *root);
+float score(DGTreeNode *node);
    
