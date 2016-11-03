@@ -1,4 +1,6 @@
 #include "dgtree.h"
+#include <iostream>
+#include <algorithm>
 
 /*
  * Set a bias score to increase the score of a feature graph that provides
@@ -57,9 +59,71 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
     priority_queue<DGTreeNode *> *H; 
- 
+    candidateFeatures(root); 
     //cout <<"Total Score "<< score(root) << endl;
           
+}
+
+DG_Heap *candidateFeatures(DGTreeNode *node) {
+   // a new heap to store DGTreeNodes
+   DG_Heap *H = new DG_Heap(); 
+   int graph_id;
+
+   // for every graph in node->S_star
+   for (const_mp_itr itr = node->S_star->begin(); itr != node->S_star->end(); itr++) {
+
+       //get G's graph id and the list of matches of feature graph with G
+       graph_id = itr->first;
+       Graph *G = itr->second;
+       matches_list g_match_list =  node->matches_of->at(graph_id);
+
+       // for every match f of feature graph in node in G 
+       for (const_list_itr f = g_match_list.begin(); f != g_match_list.end(); f++) {
+           int f_size = (*f)->size();
+        
+           //for every node in the feature graph
+           for (node_index_t ui=0; ui < f_size ; ui++) {
+               
+              // find the index of the match of ui in G
+              node_index_t G_node_index = (**f)[ui];   
+
+              // get the edge list of the G_node_index in G
+              edge_list& elist = (*(G->adjacencyList))[G_node_index];
+
+              //for every neighbor of f(ui) in G 
+              for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+                  node_index_t v = elist_itr->first;
+                  vector<int>& match = (**f);
+                  vector<int>::iterator uj_position;
+
+                  node_index_t uj;
+                  e_type t;
+
+                  if ((uj_position =find(match.begin(), match.end(), v)) != match.end()) {
+                     // check if v is already in the match f
+                     t = CLOSE; //edge type would be CLOSE
+                     uj = uj_position - match.begin(); // get the index of f_inverse(v) ie uj in the match f
+                  } else {
+                     // v is a new vertex to be mapped in f 
+                     t = OPEN; //edge type would be OPEN
+                     uj = f_size + 1; //uj is given index as |f| + 1 since it is a new node being added
+                  }
+
+                  if ( uj > ui ) 
+                      ;
+
+              } // end for every neighbor of f(ui) in G 
+
+           } //end for every node in the feature graph
+  
+          
+       
+       } // end for every match of feature graph of node in G
+
+   }// end for every graph in node->S_star
+ 
+   
+   return NULL;   
 }
 
 float score(DGTreeNode *node) {  
@@ -95,3 +159,5 @@ float score(DGTreeNode *node) {
 
    return score;
 }
+
+

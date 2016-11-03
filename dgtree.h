@@ -16,6 +16,7 @@ enum e_type {OPEN, CLOSE};
 struct DGTreeNode {
   /* set of child tree nodes */
   vector<DGTreeNode *>           children; 
+  vector<string> *vertex_labels; // labels of vertex of feature graph
   /* feature graph for the current node */
   vector<list<pair<int, int> > > *fgraph; 
   /* the edge used to grow the feature graph of parent node*/
@@ -28,8 +29,21 @@ struct DGTreeNode {
   float                          score;  // score of fgraph 
 };
 
+struct compare_nodes {
+  bool operator()(DGTreeNode *node_a, DGTreeNode *node_b) {
+                  return node_a->score < node_b->score;
+  }
+};
+
+typedef map<int, Graph *>::const_iterator const_mp_itr;
+typedef priority_queue<DGTreeNode *, vector<DGTreeNode *>, compare_nodes> DG_Heap; 
+typedef list<vector<int> *>::const_iterator const_list_itr;
+typedef list<vector<int> *> matches_list;
+typedef list<pair<int, int> > edge_list;
+typedef list<pair<int, int> >::const_iterator edge_list_itr;
+typedef int node_index_t;
 
 DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs);
 void treeGrow(DGTreeNode *root);
 float score(DGTreeNode *node);
-priority_queue<DGTreeNode *> *candidateFeatures(DGTreeNode *node);
+DG_Heap *candidateFeatures(DGTreeNode *node);
