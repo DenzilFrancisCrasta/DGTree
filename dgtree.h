@@ -1,4 +1,5 @@
 #include <map>
+#include <queue>
 #include "graph.h"
 
 using namespace std;
@@ -31,4 +32,4 @@ struct DGTreeNode {
 DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs);
 void treeGrow(DGTreeNode *root);
 float score(DGTreeNode *node);
-   
+priority_queue<DGTreeNode *> *candidateFeatures(DGTreeNode *node);

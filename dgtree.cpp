@@ -1,4 +1,3 @@
-#include <queue>
 #include "dgtree.h"
 
 /*
