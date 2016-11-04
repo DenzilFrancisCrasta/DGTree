@@ -90,8 +90,17 @@ void treeGrow(DGTreeNode *root) {
 
     cout << "Candidate Features size " << H->size()<< endl;
     printAndDestroyHeap(H);
+}
 
-          
+edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label) {
+    edge *e = new edge;
+    e->x = ui;
+    e->y = uj;
+    e->valence = valence; 
+    e->x_label = x_label; 
+    e->y_label = y_label;  
+    
+    return e;
 }
 
 DG_Heap *candidateFeatures(DGTreeNode *node) {
@@ -147,13 +156,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 
                   if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
 		      //construct the key to search 
-		      edge *e = new edge;
-		      e->x = ui;
-		      e->y = uj;
-		      e->valence = valence; 
-		      e->x_label = G->vertex_labels[w]; 
-		      e->y_label = G->vertex_labels[v]; 
- 
+		      edge *e = makeEdge(ui, uj, valence, G->vertex_labels[w],G->vertex_labels[v]); 
 		      // g+ = H.find((ui, uj));
 		      map<edge, DGTreeNode *, compare_edges>::iterator g_plus_itr = H_map.find(*e);
 		      
