@@ -79,7 +79,7 @@ void printAndDestroyHeap(DG_Heap *H) {
        cout << p->grow_edge->x_label << "-" 
 	    << p->grow_edge->valence << "-" 
 	    <<p->grow_edge->y_label 
-	    << " [g.S=" << p->S->size() << "]"<<" [#label " << p->vertex_labels->size() << "]"<<endl;
+	    << " [g.S=" << p->S->size() << "]"<<" [Score " << p->score << "]"<<endl;
        H->pop();
     }
 }
@@ -192,7 +192,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                           g_plus->matches_of = new map<int, list<vector<int> *> >();
 			  (*(g_plus->S_star))[graph_id] = G;  
 
-		          H->push(g_plus);	
+		          //H->push(g_plus); // defer till part 2 completes as H_map will have the values which will help in building H	
 			  H_map[*e] = g_plus; 
 		      
 		      } 
@@ -271,7 +271,6 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 
                              vector<int> *m = new vector<int>(**f); 
                              (*(g_plus->matches_of))[graph_id].push_back(m); 
-			  
 			  }
 
 		         // H->push(g_plus);	
@@ -285,8 +284,15 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
    }// end for every graph in node->S
 
 
-   
- 
+  // Build H from HMAP after updating g+ scores  
+   map<edge, DGTreeNode *, compare_edges>::iterator itr = H_map.begin();
+   while (itr != H_map.end()) {
+       DGTreeNode *n; 
+       n = itr->second;
+       n->score = score(n);
+       H->push(n);
+       itr++; 
+   }
   
    return H; // return the Heap of possible child DGTreenodes of node    
 }
