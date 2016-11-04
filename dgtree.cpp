@@ -87,10 +87,49 @@ void printAndDestroyHeap(DG_Heap *H) {
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
     DG_Heap *H; 
+    DGTreeNode *g_plus;
+
     H = candidateFeatures(root); 
+
+    map<int, Graph *> C(*(root->S_star)); //data-graphs to be covered    
+   
+    
+    while (!C.empty()) {
+        g_plus = bestFeature(H, &C);
+        
+        if (g_plus->S_star->size() > 1) {
+              // add the edge  (ui,uj) with valence to the feature graph of g_plus
+              int ui = g_plus->grow_edge->x;
+              int uj = g_plus->grow_edge->y;
+              int valence = g_plus->grow_edge->valence;
+
+              if (g_plus->edge_type == CLOSE) {
+
+                  (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
+                  (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
+              } else {
+                  // open edge  
+                  (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
+
+
+                  
+              }
+
+
+        
+        } else {
+        
+        }
+    
+    }// end while data-graphs to be covered is not empty
+   
 
     cout << "Candidate Features size " << H->size()<< endl;
     printAndDestroyHeap(H);
+}
+
+DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
+
 }
 
 edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label) {
@@ -152,7 +191,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                   } else {
                      // v is a new vertex to be mapped in f 
                      t = OPEN; //edge type would be OPEN
-                     uj = f_size + 1; //uj is given index as |f| + 1 since it is a new node being added
+                     uj = f_size;  //uj is given index as |f| (zero based indexing) since it is a new node being added
                   }
 
 
@@ -170,18 +209,17 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 
                          
                           if (node->vertex_labels == NULL) {
-                              // allocate storage 
+                              // If we are at level 1 the root does not have vertex labels
                               g_plus->vertex_labels = new vector<string>(); 
                               g_plus->vertex_labels->push_back(G->vertex_labels[w]);
                               g_plus->vertex_labels->push_back(G->vertex_labels[v]);
+                              g_plus->fgraph = new vector<list<pair<int, int> > >(2);
+
                           
                           } else {
                               g_plus->vertex_labels = new vector<string>(*(node->vertex_labels)); 
                               g_plus->vertex_labels->push_back(G->vertex_labels[v]);
                           }
-                          
-                              
-
 
 			  g_plus->score = 0;
 			  g_plus->edge_type = t;
@@ -245,7 +283,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                      uj = uj_position - match.begin(); // get the index of f_inverse(v) ie uj in the match f
                   } else {
                      // v is a new vertex to be mapped in f 
-                     uj = f_size + 1; //uj is given index as |f| + 1 since it is a new node being added
+                     uj = f_size; //uj is given index as |f| (zero based indexing)  since it is a new node being added
                   }
 
 
