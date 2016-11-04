@@ -112,6 +112,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
    int valence;
    DGTreeNode *g_plus; 
 
+   /**********************************  PART 1 ********************************/
    // for every graph in node->S_star
    for (const_mp_itr itr = node->S_star->begin(); itr != node->S_star->end(); itr++) {
 
@@ -170,6 +171,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 
 			  //add graph G to the set S_star of g_plus
 			  g_plus->S_star = new map<int, Graph *>();
+			  g_plus->S = new map<int, Graph *>();
 			  (*(g_plus->S_star))[graph_id] = G;  
 
 		          H->push(g_plus);	
@@ -185,8 +187,81 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
            } //end for every node in the feature graph
        } // end for every match of feature graph of node in G
    }// end for every graph in node->S_star
+
+
+   /********************************** PART 2 *****************************/
+
+   // for every graph in node->S
+   for (const_mp_itr itr = node->S->begin(); itr != node->S->end(); itr++) {
+
+       //get G's graph id and the list of matches of feature graph with G
+       graph_id = itr->first;
+       Graph *G = itr->second;
+       matches_list g_match_list =  node->matches_of->at(graph_id);
+
+       // for every match f of feature graph in node in G 
+       for (const_list_itr f = g_match_list.begin(); f != g_match_list.end(); f++) {
+           int f_size = (*f)->size();
+        
+           //for every node in the feature graph
+           for (node_index_t ui=0; ui < f_size ; ui++) {
+               
+              // find the index of the match of ui in G
+              node_index_t w = (**f)[ui];   
+
+              // get the edge list of the G_node_index in G
+              edge_list& elist = (*(G->adjacencyList))[w];
+
+              //for every neighbor of f(ui) in G 
+              for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+                  node_index_t v = elist_itr->first;
+		  valence = elist_itr->second;
+                  vector<int>& match = (**f);
+                  vector<int>::iterator uj_position;
+
+                  node_index_t uj;
+                  e_type t;
+
+                  if ((uj_position =find(match.begin(), match.end(), v)) != match.end()) {
+                     // check if v is already in the match f
+                     uj = uj_position - match.begin(); // get the index of f_inverse(v) ie uj in the match f
+                  } else {
+                     // v is a new vertex to be mapped in f 
+                     uj = f_size + 1; //uj is given index as |f| + 1 since it is a new node being added
+                  }
+
+
+                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
+		      //construct the key to search 
+		      edge *e = makeEdge(ui, uj, valence, G->vertex_labels[w],G->vertex_labels[v]); 
+		      // g+ = H.find((ui, uj));
+		      map<edge, DGTreeNode *, compare_edges>::iterator g_plus_itr = H_map.find(*e);
+		      
+		      // g+ = empty ie no such dgtreenode is found
+		      if (g_plus_itr != H_map.end()) {
+
+			  g_plus = g_plus_itr->second;
+			  (*(g_plus->S))[graph_id] = G;  
+
+			  if (g_plus->edge_type == OPEN) {
+                            // g_plus->matches_of 
+
+			  
+			  } else {
+			  
+			  }
+
+		         // H->push(g_plus);	
+			 // H_map[*e] = g_plus; 
+		      
+		      } 
+                  }// end if we have to add the edge ui,uj
+              } // end for every neighbor of f(ui) in G 
+           } //end for every node in the feature graph
+       } // end for every match of feature graph of node in G
+   }// end for every graph in node->S
  
-   
+  
    return H; // return the Heap of possible child DGTreenodes of node    
 }
 
