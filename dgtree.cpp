@@ -27,6 +27,7 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
    root->S_star = data_graphs;
    root->matches_of = new map<int, list<vector<int> *> >();
    root->grow_edge = NULL;
+   root->vertex_labels = NULL;
    root->edge_type = OPEN;
 
    map<int, Graph *>::const_iterator itr = data_graphs->begin();
@@ -78,7 +79,7 @@ void printAndDestroyHeap(DG_Heap *H) {
        cout << p->grow_edge->x_label << "-" 
 	    << p->grow_edge->valence << "-" 
 	    <<p->grow_edge->y_label 
-	    << " [g.S*=" << p->S_star->size() << "]"<< endl;
+	    << " [g.S=" << p->S->size() << "]"<<" [#label " << p->vertex_labels->size() << "]"<<endl;
        H->pop();
     }
 }
@@ -166,12 +167,29 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 			  g_plus = new DGTreeNode;
 
                           g_plus->grow_edge = e;
+
+                         
+                          if (node->vertex_labels == NULL) {
+                              // allocate storage 
+                              g_plus->vertex_labels = new vector<string>(); 
+                              g_plus->vertex_labels->push_back(G->vertex_labels[w]);
+                              g_plus->vertex_labels->push_back(G->vertex_labels[v]);
+                          
+                          } else {
+                              g_plus->vertex_labels = new vector<string>(*(node->vertex_labels)); 
+                              g_plus->vertex_labels->push_back(G->vertex_labels[v]);
+                          }
+                          
+                              
+
+
 			  g_plus->score = 0;
 			  g_plus->edge_type = t;
 
 			  //add graph G to the set S_star of g_plus
 			  g_plus->S_star = new map<int, Graph *>();
 			  g_plus->S = new map<int, Graph *>();
+                          g_plus->matches_of = new map<int, list<vector<int> *> >();
 			  (*(g_plus->S_star))[graph_id] = G;  
 
 		          H->push(g_plus);	
@@ -244,10 +262,15 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 			  (*(g_plus->S))[graph_id] = G;  
 
 			  if (g_plus->edge_type == OPEN) {
-                            // g_plus->matches_of 
-
+                                
+                             vector<int> *m = new vector<int>(**f); 
+                             m->push_back(v);
+                             (*(g_plus->matches_of))[graph_id].push_back(m); 
 			  
 			  } else {
+
+                             vector<int> *m = new vector<int>(**f); 
+                             (*(g_plus->matches_of))[graph_id].push_back(m); 
 			  
 			  }
 
@@ -260,6 +283,9 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
            } //end for every node in the feature graph
        } // end for every match of feature graph of node in G
    }// end for every graph in node->S
+
+
+   
  
   
    return H; // return the Heap of possible child DGTreenodes of node    
