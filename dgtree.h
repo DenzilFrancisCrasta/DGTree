@@ -8,6 +8,8 @@ struct edge {
    // represents an edge between x and y
    int x; 
    int y;
+   string x_label;
+   string y_label;
    int valence;
 };
 
@@ -31,7 +33,24 @@ struct DGTreeNode {
 
 struct compare_nodes {
   bool operator()(DGTreeNode *node_a, DGTreeNode *node_b) {
-                  return node_a->score < node_b->score;
+      return node_a->score < node_b->score;
+  }
+};
+
+struct compare_edges {
+  bool operator() (const edge &a,const edge &b) const{
+      
+       if ( a.x != b.x)
+	   return a.x < b.x;
+       else if (a.y != b.y)
+	   return a.y < b.y;
+       else if (a.valence != b.valence) 
+	   return a.valence < b.valence;
+       else if (a.x_label != b.x_label)
+	   return a.x_label < b.x_label; 
+       else 
+	   return a.y_label < b.y_label; 
+
   }
 };
 

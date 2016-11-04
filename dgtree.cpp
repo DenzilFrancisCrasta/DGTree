@@ -83,7 +83,11 @@ void treeGrow(DGTreeNode *root) {
 DG_Heap *candidateFeatures(DGTreeNode *node) {
    // a new heap to store DGTreeNodes
    DG_Heap *H = new DG_Heap(); 
+   map<edge, DGTreeNode *, compare_edges> H_map; // stores the possible children of node for fast retrieval by an edge
+
    int graph_id;
+   int valence;
+   DGTreeNode *g_plus; 
 
    // for every graph in node->S_star
    for (const_mp_itr itr = node->S_star->begin(); itr != node->S_star->end(); itr++) {
@@ -101,14 +105,15 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
            for (node_index_t ui=0; ui < f_size ; ui++) {
                
               // find the index of the match of ui in G
-              node_index_t G_node_index = (**f)[ui];   
+              node_index_t w = (**f)[ui];   
 
               // get the edge list of the G_node_index in G
-              edge_list& elist = (*(G->adjacencyList))[G_node_index];
+              edge_list& elist = (*(G->adjacencyList))[w];
 
               //for every neighbor of f(ui) in G 
               for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
                   node_index_t v = elist_itr->first;
+		  valence = elist_itr->second;
                   vector<int>& match = (**f);
                   vector<int>::iterator uj_position;
 
@@ -127,22 +132,45 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 
 
                   if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
+		      //construct the key to search 
+		      edge *e = new edge;
+		      e->x = ui;
+		      e->y = uj;
+		      e->valence = valence; 
+		      e->x_label = G->vertex_labels[w]; 
+		      e->y_label = G->vertex_labels[v]; 
+ 
+		      // g+ = H.find((ui, uj));
+		      map<edge, DGTreeNode *, compare_edges>::iterator g_plus_itr = H_map.find(*e);
+		      
+		      // g+ = empty ie no such dgtreenode is found
+		      if (g_plus_itr == H_map.end()) {
+			  g_plus = new DGTreeNode;
 
-                  }
+                          g_plus->grow_edge = e;
+			  g_plus->score = 0;
+			  g_plus->edge_type = t;
 
+			  //add graph G to the set S_star of g_plus
+			  g_plus->S_star = new map<int, Graph *>();
+			  (*(g_plus->S_star))[graph_id] = G;  
 
+		          H->push(g_plus);	
+			  H_map[*e] = g_plus; 
+		      
+		      } 
+		      else {
+                          //g+ is not empty. Just add G to g+.S_star
+		          (*(g_plus_itr->second->S_star))[graph_id] = G;  
+		      }
+                  }// end if we have to add the edge ui,uj
               } // end for every neighbor of f(ui) in G 
-
            } //end for every node in the feature graph
-  
-          
-       
        } // end for every match of feature graph of node in G
-
    }// end for every graph in node->S_star
  
    
-   return NULL;   
+   return H; // return the Heap of possible child DGTreenodes of node    
 }
 
 float score(DGTreeNode *node) {  
@@ -178,5 +206,3 @@ float score(DGTreeNode *node) {
 
    return score;
 }
-
-
