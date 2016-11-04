@@ -74,8 +74,9 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v) {
 
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
-    priority_queue<DGTreeNode *> *H; 
-    candidateFeatures(root); 
+    DG_Heap *H; 
+    H = candidateFeatures(root); 
+    cout << "Candidate Features size " << H->size()<< endl;
     //cout <<"Total Score "<< score(root) << endl;
           
 }
