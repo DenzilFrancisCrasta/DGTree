@@ -72,12 +72,25 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v) {
     return false;
 }
 
+void printAndDestroyHeap(DG_Heap *H) {
+    while (!H->empty()) {
+       DGTreeNode *p = H->top(); 
+       cout << p->grow_edge->x_label << "-" 
+	    << p->grow_edge->valence << "-" 
+	    <<p->grow_edge->y_label 
+	    << " [g.S*=" << p->S_star->size() << "]"<< endl;
+       H->pop();
+    }
+}
+
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
     DG_Heap *H; 
     H = candidateFeatures(root); 
+
     cout << "Candidate Features size " << H->size()<< endl;
-    //cout <<"Total Score "<< score(root) << endl;
+    printAndDestroyHeap(H);
+
           
 }
 
