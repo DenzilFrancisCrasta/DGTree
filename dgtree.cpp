@@ -98,34 +98,42 @@ void treeGrow(DGTreeNode *root) {
         g_plus = bestFeature(H, &C);
         
         if (g_plus->S_star->size() > 1) {
-              // add the edge  (ui,uj) with valence to the feature graph of g_plus
-              int ui = g_plus->grow_edge->x;
-              int uj = g_plus->grow_edge->y;
-              int valence = g_plus->grow_edge->valence;
 
-              if (g_plus->edge_type == CLOSE) {
+            
+            // add the edge  (ui,uj) with valence to the feature graph of g_plus
+            int ui = g_plus->grow_edge->x;
+            int uj = g_plus->grow_edge->y;
+            int valence = g_plus->grow_edge->valence;
 
-                  (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
-                  (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
-              } else {
-                  // open edge  
-                  (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
-
-
-                  
-              }
-
-
+            // allocate storage in the feature graph for the open edge
+            if (g_plus->edge_type == OPEN) {
+                g_plus->fgraph->push_back(list<pair<int, int> >());
+            }
+  
+            (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
+            (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
+  
+            treeGrow(g_plus);
         
         } else {
-        
-        }
+            // we have reached a leaf node which holds a data-graph   
+            
+            if (root->S_star->size() == 1) {
+              g_plus->fgraph = root->S_star->begin()->second->adjacencyList;   
+              g_plus->S = g_plus->S_star;
+            } else {
+              cerr << "ERROR: Expected S* to have one graph but size(S*) = " << root->S_star->size() << endl; 
+            }
+
+        }// end reached a leaf node 
+
+         
     
     }// end while data-graphs to be covered is not empty
    
 
-    cout << "Candidate Features size " << H->size()<< endl;
-    printAndDestroyHeap(H);
+   // cout << "Candidate Features size " << H->size()<< endl;
+   // printAndDestroyHeap(H);
 }
 
 DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
