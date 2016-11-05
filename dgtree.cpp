@@ -96,6 +96,18 @@ void treeGrow(DGTreeNode *root) {
     while (!C.empty()) {
         g_plus = bestFeature(H, &C);
         
+        if(g_plus == NULL){
+           g_plus = new DGTreeNode;
+           g_plus->fgraph = new vector<list<pair<int, int> > >(*(root->fgraph)); 
+           g_plus->grow_edge = NULL;
+           //edge type - store something?
+           g_plus->S_star = new map<int, Graph *>(C);
+           g_plus->S = new map<int, Graph *>(*(g_plus->S_star));
+           root->children.push_back(g_plus);
+           map<int, Graph *> D; //(D, D.begin());
+           C = D;
+           //C = NULL; 
+        } else {
         // add the edge  (ui,uj) with valence to the feature graph of g_plus
         int ui = g_plus->grow_edge->x;
         int uj = g_plus->grow_edge->y;
@@ -110,6 +122,7 @@ void treeGrow(DGTreeNode *root) {
         (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
         
         if (g_plus->S_star->size() > 1) {
+            //if (){}
             treeGrow(g_plus);
         } else {
             // we have reached a leaf node which holds a data-graph   
@@ -128,7 +141,7 @@ void treeGrow(DGTreeNode *root) {
 	C = D; //costly find alternative
         cout << " After " << C.size() << endl;
 
-    
+        }
     }// end while data-graphs to be covered is not empty
    
 
@@ -170,8 +183,8 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
     } // end while g+.S* is not included in C 
    cout << "BEST FEATURE g+ s* size AFTER" << g_plus->S_star->size() << endl; 
     cout << "BEST FEATURE C size AFTER " << C->size() << endl; 
-   //if (g_plus->S_star->size() == 0)
-    //   exit(1);
+   if (g_plus->S_star->size() == 0)
+       return NULL; //exit(1);
     return g_plus;
 }
 
