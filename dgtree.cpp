@@ -96,39 +96,38 @@ void treeGrow(DGTreeNode *root) {
     while (!C.empty()) {
         g_plus = bestFeature(H, &C);
         
-        if (g_plus->S_star->size() > 1) {
+        // add the edge  (ui,uj) with valence to the feature graph of g_plus
+        int ui = g_plus->grow_edge->x;
+        int uj = g_plus->grow_edge->y;
+        int valence = g_plus->grow_edge->valence;
 
-            // add the edge  (ui,uj) with valence to the feature graph of g_plus
-            int ui = g_plus->grow_edge->x;
-            int uj = g_plus->grow_edge->y;
-            int valence = g_plus->grow_edge->valence;
+        // allocate storage in the feature graph for the open edge
+        if (g_plus->edge_type == OPEN) {
+            g_plus->fgraph->push_back(list<pair<int, int> >());
+        }
 
-            // allocate storage in the feature graph for the open edge
-            if (g_plus->edge_type == OPEN) {
-                g_plus->fgraph->push_back(list<pair<int, int> >());
-            }
-  
-            (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
-            (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
-  
-            treeGrow(g_plus);
+        (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
+        (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
         
+        if (g_plus->S_star->size() > 1) {
+            treeGrow(g_plus);
         } else {
             // we have reached a leaf node which holds a data-graph   
-            
-            if (root->S_star->size() == 1) {
-              g_plus->fgraph = root->S_star->begin()->second->adjacencyList;   
+            //g_plus->fgraph = g_plus->S_star->begin()->second->adjacencyList;   
               g_plus->S = g_plus->S_star;
-            } else {
-              cerr << "ERROR: Expected S* to have one graph but size(S*) = " << root->S_star->size() << endl; 
-            }
 
         }// end reached a leaf node 
         
+        // add g_plus as g's child
+        root->children.push_back(g_plus);   
 
         map<int, Graph *> D;    
+        cout << "Before set diff " << C.size();
+        cout << "Before set diff " << g_plus->S_star->size();
         set_difference(C.begin(), C.end(), g_plus->S_star->begin(), g_plus->S_star->end(), insert_iterator<map<int, Graph *> >(D, D.begin())); 
 	C = D; //costly find alternative
+        cout << " After " << C.size() << endl;
+
     
     }// end while data-graphs to be covered is not empty
    
@@ -143,6 +142,16 @@ bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>
 
 DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
     DGTreeNode *g_plus = H->top();
+   
+    cout << "BEST FEATURE g+ s* size BEFORE " << g_plus->S_star->size() << endl; 
+    cout << "BEST FEATURE C size BEFORE " << C->size() << endl; 
+
+    if (C->size() == 1 && g_plus->S_star->size() == 1)
+        cout <<" C gid = " <<  C->begin()->first << " S*id " << g_plus->S_star->begin()->first << " Heap Size " << H->size() << endl;
+
+    
+    
+
     while (! includes(C->begin(), C->end(), g_plus->S_star->begin(), g_plus->S_star->end(), compareMapDGTreeNodes)) {
        map<int, Graph *> *new_S_star = new map<int, Graph *>();
 
@@ -159,7 +168,10 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
        g_plus = H->top();
 
     } // end while g+.S* is not included in C 
-    
+   cout << "BEST FEATURE g+ s* size AFTER" << g_plus->S_star->size() << endl; 
+    cout << "BEST FEATURE C size AFTER " << C->size() << endl; 
+   //if (g_plus->S_star->size() == 0)
+    //   exit(1);
     return g_plus;
 }
 
@@ -244,10 +256,14 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                               g_plus->vertex_labels = new vector<string>(); 
                               g_plus->vertex_labels->push_back(G->vertex_labels[w]);
                               g_plus->vertex_labels->push_back(G->vertex_labels[v]);
+
                               g_plus->fgraph = new vector<list<pair<int, int> > >(2);
 
                           
                           } else {
+                              g_plus->fgraph = new vector<list<pair<int, int> > >(*(node->fgraph));
+
+
                               g_plus->vertex_labels = new vector<string>(*(node->vertex_labels)); 
                               g_plus->vertex_labels->push_back(G->vertex_labels[v]);
                           }
