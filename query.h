@@ -1,10 +1,10 @@
 #include <vector>
 #include "dgtree.h"
-#include "graph.h"
+#include <algorithm>
 
 struct Entry {
   DGTreeNode *treenode; 
-  map<int, Graph *> *S;
+  map<int, Graph *> *S_star;
   list<vector<int> *> *matches;
   float score;
 }; 

@@ -107,7 +107,8 @@ void treeGrow(DGTreeNode *root) {
            map<int, Graph *> D; //(D, D.begin());
            C = D;
            //C = NULL; 
-        } else {
+        } 
+        else { //There is atleast one edge to grow that we found in heap using bestFeature
         // add the edge  (ui,uj) with valence to the feature graph of g_plus
         int ui = g_plus->grow_edge->x;
         int uj = g_plus->grow_edge->y;
@@ -122,7 +123,6 @@ void treeGrow(DGTreeNode *root) {
         (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
         
         if (g_plus->S_star->size() > 1) {
-            //if (){}
             treeGrow(g_plus);
         } else {
             // we have reached a leaf node which holds a data-graph   
