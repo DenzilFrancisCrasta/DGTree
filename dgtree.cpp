@@ -86,20 +86,18 @@ void printAndDestroyHeap(DG_Heap *H) {
 
 void treeGrow(DGTreeNode *root) {
     // Heap of possible child nodes of root ordered by score for root->fgraph
-    DG_Heap *H; 
+    DG_Heap *H;
     DGTreeNode *g_plus;
 
     H = candidateFeatures(root); 
 
     map<int, Graph *> C(*(root->S_star)); //data-graphs to be covered    
    
-    
     while (!C.empty()) {
         g_plus = bestFeature(H, &C);
         
         if (g_plus->S_star->size() > 1) {
 
-            
             // add the edge  (ui,uj) with valence to the feature graph of g_plus
             int ui = g_plus->grow_edge->x;
             int uj = g_plus->grow_edge->y;
@@ -139,13 +137,13 @@ void treeGrow(DGTreeNode *root) {
    // printAndDestroyHeap(H);
 }
 
-bool compareMapDGTreeNodes(const pair<int, Graph *>& p1, const pair<int, Graph *>& p2) {
-    return p1.first < p1.second;
+bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>& p2) {
+    return p1.first < p2.first;
 }
 
 DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
     DGTreeNode *g_plus = H->top();
-    while (! includes(C->begin(), C->end(), H->begin(), H->end(), compareMapDGTreeNodes)) {
+    while (! includes(C->begin(), C->end(), g_plus->S_star->begin(), g_plus->S_star->end(), compareMapDGTreeNodes)) {
        map<int, Graph *> *new_S_star = new map<int, Graph *>();
 
        set_intersection(g_plus->S_star->begin(), g_plus->S_star->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*new_S_star, new_S_star->begin()));
@@ -344,8 +342,6 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                              (*(g_plus->matches_of))[graph_id].push_back(m); 
 			  }
 
-		         // H->push(g_plus);	
-			 // H_map[*e] = g_plus; 
 		      
 		      } 
                   }// end if we have to add the edge ui,uj
@@ -364,7 +360,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
        H->push(n);
        itr++; 
    }
-  
+
    return H; // return the Heap of possible child DGTreenodes of node    
 }
 

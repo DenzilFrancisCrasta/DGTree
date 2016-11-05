@@ -62,8 +62,11 @@ typedef list<pair<int, int> > edge_list;
 typedef list<pair<int, int> >::const_iterator edge_list_itr;
 typedef int node_index_t;
 
+
 DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs);
 void treeGrow(DGTreeNode *root);
 float score(DGTreeNode *node);
 DG_Heap *candidateFeatures(DGTreeNode *node);
 DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C);
+
+
