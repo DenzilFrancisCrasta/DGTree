@@ -126,8 +126,11 @@ void treeGrow(DGTreeNode *root) {
             }
 
         }// end reached a leaf node 
+        
 
-         
+        map<int, Graph *> D;    
+        set_difference(C.begin(), C.end(), g_plus->S_star->begin(), g_plus->S_star->end(), insert_iterator<map<int, Graph *> >(D, D.begin())); 
+	C = D; //costly find alternative
     
     }// end while data-graphs to be covered is not empty
    
@@ -136,8 +139,30 @@ void treeGrow(DGTreeNode *root) {
    // printAndDestroyHeap(H);
 }
 
-DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
+bool compareMapDGTreeNodes(const pair<int, Graph *>& p1, const pair<int, Graph *>& p2) {
+    return p1.first < p1.second;
+}
 
+DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
+    DGTreeNode *g_plus = H->top();
+    while (! includes(C->begin(), C->end(), H->begin(), H->end(), compareMapDGTreeNodes)) {
+       map<int, Graph *> *new_S_star = new map<int, Graph *>();
+
+       set_intersection(g_plus->S_star->begin(), g_plus->S_star->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*new_S_star, new_S_star->begin()));
+       delete g_plus->S_star;
+       g_plus->S_star = new_S_star;
+
+       H->pop();
+       if (!g_plus->S_star->empty()) {
+            g_plus->score = score(g_plus);
+	    H->push(g_plus);
+       }
+
+       g_plus = H->top();
+
+    } // end while g+.S* is not included in C 
+    
+    return g_plus;
 }
 
 edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label) {
