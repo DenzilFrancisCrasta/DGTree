@@ -72,10 +72,8 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
     q->score = score(q);
     H->push(q);
     
-    int count=0;
-    while(!C->empty() && count<300){
+    while(!C->empty()){
 
-       count++;
        q = BestFeature(H,C);
       
        //cout << "C size at loop start" << C->size() << endl;
@@ -194,7 +192,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
              }
              else {
                   
-                 FeatureExpansion(Q, q, g_plus, H, C); //Put all children on heap with scores
+                 FeatureExpansion(Q, q, g_plus, H, &C); //Put all children on heap with scores
               //   cout << "gplus size after feature expansion" << g_plus->S->size() << endl;
              }
 
@@ -214,19 +212,20 @@ bool compareMapEntryNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>&
 }
 
 
-void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int, Graph *> *C){
+void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int, Graph *> **C){
 
    Entry *q_plus = new Entry;
    q_plus->treenode = g_plus;
    q_plus->S_star = new map<int, Graph *>();
    q_plus->matches = new list<vector<int> *>();
 
-   //: q_plus->S_star = g_plus->S intersection C;
+   //: q_plus->S_star = g_plus->S intersection (*C);
 
-       set_intersection(g_plus->S->begin(), g_plus->S->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*(q_plus->S_star), q_plus->S_star->begin()));
+       set_intersection(g_plus->S->begin(), g_plus->S->end(), (*C)->begin(), (*C)->end(), insert_iterator<map<int, Graph *> >(*(q_plus->S_star), q_plus->S_star->begin()));
 
    //q_plus->matches = NULL;
    if(g_plus->grow_edge == NULL){
+
       // The map in parent is sufficient
       // add to answer set or return NULL; will it come here?
       // this code cannot be reached since grow_edge is NULL only in leaf nodes, which gets checked in the if part, else part calls this FeatureExpansion function.
@@ -290,25 +289,6 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
           itr++;
       } // end while 
 
-
-      
-      /*
-             for(each match that has the correct ui label){ //iterate over all matches, if ui label is incorrect, continue
-                     if(g_plus->edge_type == OPEN){
-                        //for every neighbour v of f(ui) in Q {
-                            if label of v matches label of uj {
-                               add this match to q_plus->matches
-                            }
-                        }
-                     } //end edge_type OPEN case
-                     else { // edge_type == CLOSE
-                        //paper
-                     }
-              } // end for each valid match
-           
-       */
-
-
    } 
 
   if (! q_plus->matches->empty()) {
@@ -318,8 +298,8 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
   } else {
 
     map<int, Graph *> *D = new map<int, Graph *>();    
-    set_difference(C->begin(), C->end(), q_plus->S_star->begin(), q_plus->S_star->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
-    C = D; 
+    set_difference((*C)->begin(), (*C)->end(), q_plus->S_star->begin(), q_plus->S_star->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
+    (*C) = D; 
   
   }
    

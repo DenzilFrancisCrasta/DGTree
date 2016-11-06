@@ -18,4 +18,4 @@ struct compare_entries {
 typedef priority_queue<Entry *, vector<Entry *>, compare_entries> Q_Heap; 
 Entry * BestFeature(Q_Heap *H, map<int, Graph *> *C );
 map<int, Graph *> *search(DGTreeNode *root, Graph *Q);
-void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int, Graph *> *C);
+void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int, Graph *> **C);
