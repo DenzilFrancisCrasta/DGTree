@@ -59,7 +59,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
     Entry *q = new Entry;
     q->treenode = root;
     q->S_star = C;
-    q->matches = NULL;
+    q->matches = new list<vector<int> *>();
     
     //for every vertex in query graph, add a match f with the vertex number
     for(int i=0; i<Q->vertex_count; i++){
@@ -237,7 +237,7 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
 
        set_intersection(g_plus->S->begin(), g_plus->S->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*(q_plus->S_star), q_plus->S_star->begin()));
 
-   q_plus->matches = NULL;
+   //q_plus->matches = NULL;
    if(g_plus->grow_edge == NULL){
       // The map in parent is sufficient
       // add to answer set or return NULL; will it come here?

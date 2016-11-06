@@ -59,7 +59,9 @@ int main() {
      cerr << "ERROR: Failed to open file " << query_file << endl;
      return 1;
   }
+
   while (qfile >> c) {
+
       Graph *g = new Graph; 
 
       qfile >> g->id;
@@ -85,11 +87,14 @@ int main() {
       }
 
       map<int, Graph *> *m = search(root, g); 
+
       cout << m->size() << endl;
+
       for (map<int, Graph *>::const_iterator itr=m->begin(); itr != m->end(); itr++)
           cout << itr->first << " " ;
       cout << endl;
       //data_graphs[g->id] = g;
+      
 
   } // end while reading all data graphs
   

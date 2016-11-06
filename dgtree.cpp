@@ -135,11 +135,11 @@ void treeGrow(DGTreeNode *root) {
         root->children.push_back(g_plus);   
 
         map<int, Graph *> D;    
-        cout << "Before set diff " << C.size();
-        cout << "Before set diff " << g_plus->S_star->size();
+    //    cout << "Before set diff " << C.size();
+     //   cout << "Before set diff " << g_plus->S_star->size();
         set_difference(C.begin(), C.end(), g_plus->S_star->begin(), g_plus->S_star->end(), insert_iterator<map<int, Graph *> >(D, D.begin())); 
 	C = D; //costly find alternative
-        cout << " After " << C.size() << endl;
+      //  cout << " After " << C.size() << endl;
 
         }
     }// end while data-graphs to be covered is not empty
@@ -156,8 +156,8 @@ bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>
 DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
     DGTreeNode *g_plus = H->top();
    
-    cout << "BEST FEATURE g+ s* size BEFORE " << g_plus->S_star->size() << endl; 
-    cout << "BEST FEATURE C size BEFORE " << C->size() << endl; 
+//    cout << "BEST FEATURE g+ s* size BEFORE " << g_plus->S_star->size() << endl; 
+ //   cout << "BEST FEATURE C size BEFORE " << C->size() << endl; 
 
     if (C->size() == 1 && g_plus->S_star->size() == 1)
         cout <<" C gid = " <<  C->begin()->first << " S*id " << g_plus->S_star->begin()->first << " Heap Size " << H->size() << endl;
@@ -181,8 +181,8 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
        g_plus = H->top();
 
     } // end while g+.S* is not included in C 
-   cout << "BEST FEATURE g+ s* size AFTER" << g_plus->S_star->size() << endl; 
-    cout << "BEST FEATURE C size AFTER " << C->size() << endl; 
+  // cout << "BEST FEATURE g+ s* size AFTER" << g_plus->S_star->size() << endl; 
+   // cout << "BEST FEATURE C size AFTER " << C->size() << endl; 
    if (g_plus->S_star->size() == 0)
        return NULL; //exit(1);
     return g_plus;
