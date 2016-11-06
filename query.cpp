@@ -73,8 +73,10 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
     H->push(q);
 
     while(!C->empty()){
-       q = BestFeature(H,C);
 
+       q = BestFeature(H,C);
+      
+       cout << "C size at loop start" << C->size() << endl;
        if(q == NULL){
          //shouldn't come here --> indicates missing links/graphs in the index
          cerr<<"The index didn't cover all data graphs\n";
@@ -169,6 +171,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                              }
 
 
+                            cout << "gplus size at loop end" << g_plus->S->size() << endl;
                             map<int, Graph *> *D = new map<int, Graph *>();    
                             set_difference(C->begin(), C->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
                             C = D; 
@@ -179,43 +182,20 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                       mitr++;
                   } // end while 
 
-
-
-
-
-
-
-                 
                  }
-
              }
              else {
                   
                  FeatureExpansion(Q, q, g_plus, H, C); //Put all children on heap with scores
-             
+                 cout << "gplus size after feature expansion" << g_plus->S->size() << endl;
              }
 
              itr++; 
          } // end for every child node of g
 
-         /*for(every g_plus in g->children){ //iterate over g->children
-           if (g_plus has no children) // if(g_plus->children.size() ==0){
-             if(grow_edge == NULL) {//check for NULL grow_edge
-                //A = A U gplus_S (The graph already matched its parent, with NULL grow_edge, it definitely matches this, so add to answer set
-             } 
-             else { //There is an edge to grow
-               //check to extend each match; iterate over all matches in q
-               //similar to FeatureExpansion logic
-               //... paper
-             } //end if-else of there is an edge to grow
-           } 
-           else { //g_plus has children
-             FeatureExpansion(Q,q,g_plus,H,C); //Put all children on heap with scores
-           }
-
-         }*/ //end iterate over all children
        }
        
+       cout << "C size at loop end" << C->size() << endl;
     }
     
    return A;     
