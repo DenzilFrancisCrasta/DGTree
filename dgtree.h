@@ -63,6 +63,7 @@ typedef list<pair<int, int> >::const_iterator edge_list_itr;
 typedef int node_index_t;
 
 
+bool isAnEdge(adj_list_t *adj_list, int u, int v) ;
 DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs);
 void treeGrow(DGTreeNode *root);
 float score(DGTreeNode *node);

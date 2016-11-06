@@ -1,6 +1,6 @@
 #include "query.h"
 #include <iostream>
-Entry * BestFeature(Q_Heap *H, map<int, Graph *> *C );
+
 float score(Entry *node) {  
    
     float covered_datagraphs;
@@ -13,7 +13,27 @@ float score(Entry *node) {
    
    return score;
 }
-vector<int> *search(DGTreeNode *root, Graph *Q) {
+
+/*
+bool isAnEdge(adj_list_t *adj_list, int u, int v) {
+    
+    // u is larger than the size of the list 
+    if (u >= adj_list->size())
+        return false;
+    
+    // get the edge list of u
+    edge_list& elist = (*(adj_list))[u];
+    
+    for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+        if (elist_itr->first == v)
+            return true;
+    }    
+
+    return false;
+}
+*/
+
+map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
 
     map<int, Graph *> *C = new map<int, Graph *>(); // candidate answers     
 
@@ -33,7 +53,7 @@ vector<int> *search(DGTreeNode *root, Graph *Q) {
     }// end while sieve data graphs
 
 
-    vector<int> *A = new vector<int>();
+    map<int, Graph *> *A = new map<int, Graph *>();
     Q_Heap *H = new Q_Heap(); 
 
     Entry *q = new Entry;
@@ -57,11 +77,127 @@ vector<int> *search(DGTreeNode *root, Graph *Q) {
 
        if(q == NULL){
          //shouldn't come here --> indicates missing links/graphs in the index
-         cout<<"The index didn't cover all data graphs\n";
+         cerr<<"The index didn't cover all data graphs\n";
          exit(1);
        } // analyse carefully and complete
        else {
+
          DGTreeNode *g = q->treenode;
+         vector<DGTreeNode *>::const_iterator itr = g->children.begin();
+
+         // for every child node of g
+         while (itr != g->children.end()) {
+             DGTreeNode *g_plus;
+             g_plus = *itr;
+             
+             if (g_plus->children.size() ==0) { 
+
+                 // g_plus is a leaf
+                 if (g_plus->grow_edge == NULL) {
+
+                    //A = A U gplus_S
+                    map<int, Graph *> *newA = new map<int, Graph *>();
+                    set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
+                    delete A;
+                    A = newA;
+
+                 } else {
+                        
+                    // check to extend each match; iterate over all matches in q
+                    // similar to FeatureExpansion logic
+                    // paper
+
+
+                      int ui = g_plus->grow_edge->x;
+                      int uj = g_plus->grow_edge->y;
+                      string gxlabel = g_plus->grow_edge->x_label;
+                      string gylabel = g_plus->grow_edge->y_label;
+                      int valence = g_plus->grow_edge->valence;
+
+
+                      list<vector<int> *>::const_iterator mitr = q->matches->begin(); 
+                      while (mitr != q->matches->end()) {
+                      
+                          bool new_match_found = false;
+
+                          int q_index = (**mitr)[ui];
+                          string uilabel = Q->vertex_labels[q_index];
+
+                          if (uilabel == gxlabel) {
+                            // correct ui label ie valid match  
+                             if ( g_plus->edge_type == OPEN) {
+
+                              // get the edge list of the q_index in Q
+                              edge_list& elist = (*(Q->adjacencyList))[q_index];
+
+                              //for every neighbor of q_index in Q 
+                              for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+
+                                  node_index_t v = elist_itr->first;
+                                  string vlabel = Q->vertex_labels[v];
+                                  int Q_valence = elist_itr->second;
+
+                                  if (Q_valence == valence && vlabel == gylabel) {
+                                       if (find((**mitr).begin(), (**mitr).end(), v) != (**mitr).end()) {
+                                        
+                                            new_match_found = true;
+                                            break ; 
+                                       }
+                                  }
+
+                              }//endfor every neighbor of 
+
+
+                                   
+                             } // end if edge type open
+                             else {
+                                 // closed edge case 
+
+                                 if (isAnEdge(Q->adjacencyList, (**mitr)[ui], (**mitr)[uj])) {
+                                            new_match_found = true;
+                                 
+                                  }// end if is an edge
+                         
+                             } //end else closed edge case
+                             
+                             // Add an element to the answer set
+                             if (new_match_found) {
+                                map<int, Graph *> *newA = new map<int, Graph *>();
+                                set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
+                                delete A;
+                                A = newA;
+                             }
+
+
+                            map<int, Graph *> *D = new map<int, Graph *>();    
+                            set_difference(C->begin(), C->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
+                            C = D; 
+
+
+                      }// end if uilabel = gxlabel
+                  
+                      mitr++;
+                  } // end while 
+
+
+
+
+
+
+
+                 
+                 }
+
+             }
+             else {
+                  
+                 FeatureExpansion(Q, q, g_plus, H, C); //Put all children on heap with scores
+             
+             }
+
+             itr++; 
+         } // end for every child node of g
+
          /*for(every g_plus in g->children){ //iterate over g->children
            if (g_plus has no children) // if(g_plus->children.size() ==0){
              if(grow_edge == NULL) {//check for NULL grow_edge
@@ -82,43 +218,124 @@ vector<int> *search(DGTreeNode *root, Graph *Q) {
        
     }
     
-     
+   return A;     
 }
 
 bool compareMapEntryNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>& p2) {
     return p1.first < p2.first;
 }
 
+
 void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int, Graph *> *C){
+
    Entry *q_plus = new Entry;
    q_plus->treenode = g_plus;
-   //TO_DO: q_plus->S_star = g_plus->S intersection C;
+   q_plus->S_star = new map<int, Graph *>();
+   q_plus->matches = new list<vector<int> *>();
+
+   //: q_plus->S_star = g_plus->S intersection C;
+
+       set_intersection(g_plus->S->begin(), g_plus->S->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*(q_plus->S_star), q_plus->S_star->begin()));
+
    q_plus->matches = NULL;
-   if(g_plus->grow_edge == NULL){ //The map in parent is sufficient
-      //add to answer set or return NULL; will it come here?
-      //this code cannot be reached since grow_edge is NULL only in leaf nodes, which gets checked in the if part, else part calls this FeatureExpansion function.
+   if(g_plus->grow_edge == NULL){
+      // The map in parent is sufficient
+      // add to answer set or return NULL; will it come here?
+      // this code cannot be reached since grow_edge is NULL only in leaf nodes, which gets checked in the if part, else part calls this FeatureExpansion function.
+       cerr << "We shouldnt reach here. Houston we have a problem" << endl;
    }
    else {
       int ui = g_plus->grow_edge->x;
       int uj = g_plus->grow_edge->y;
+      string gxlabel = g_plus->grow_edge->x_label;
+      string gylabel = g_plus->grow_edge->y_label;
       int valence = g_plus->grow_edge->valence;
+
+      list<vector<int> *>::const_iterator itr = q->matches->begin(); 
+      while (itr != q->matches->end()) {
+          int q_index = (**itr)[ui];
+          string uilabel = Q->vertex_labels[q_index];
+
+          if (uilabel == gxlabel) {
+            // correct ui label ie valid match  
+             if ( g_plus->edge_type == OPEN) {
+
+              // get the edge list of the q_index in Q
+              edge_list& elist = (*(Q->adjacencyList))[q_index];
+
+              //for every neighbor of q_index in Q 
+              for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+
+                  node_index_t v = elist_itr->first;
+                  string vlabel = Q->vertex_labels[v];
+                  int Q_valence = elist_itr->second;
+
+                  if (Q_valence == valence && vlabel == gylabel) {
+                       if (find((**itr).begin(), (**itr).end(), v) != (**itr).end()) {
+                          
+                             vector<int> *m = new vector<int>(**itr); 
+                             m->push_back(v);
+                             (*(q_plus->matches)).push_back(m); 
+                       
+                       }
+                  
+                  }
+
+
+              }//endfor every neighbor of 
+                   
+             } // end if edge type open
+             else {
+                 // closed edge case 
+
+                 if (isAnEdge(Q->adjacencyList, (**itr)[ui], (**itr)[uj])) {
+                             vector<int> *m = new vector<int>(**itr); 
+                             (*(q_plus->matches)).push_back(m); 
+
+                 
+                 }// end if is an edge
+             
+             } //end else closed edge case
+          }// end if uilabel = gxlabel
       
-      /*for(each match that has the correct ui label){ //iterate over all matches, if ui label is incorrect, continue
-         if(g_plus->edge_type == OPEN){
-            //for every neighbour v of f(ui) in Q {
-                if label of v matches label of uj {
-                   add this match to q_plus->matches
-                }
-            }
-         } //end edge_type OPEN case
-         else { // edge_type == CLOSE
-            //paper
-         }
-     } // end for each valid match*/
-   }
+          itr++;
+      } // end while 
+
+
+      
+      /*
+             for(each match that has the correct ui label){ //iterate over all matches, if ui label is incorrect, continue
+                     if(g_plus->edge_type == OPEN){
+                        //for every neighbour v of f(ui) in Q {
+                            if label of v matches label of uj {
+                               add this match to q_plus->matches
+                            }
+                        }
+                     } //end edge_type OPEN case
+                     else { // edge_type == CLOSE
+                        //paper
+                     }
+              } // end for each valid match
+           
+       */
+
+
+   } 
+
+  if (! q_plus->matches->empty()) {
+     q_plus->score = score(q_plus); 
+     H->push(q_plus);
+
+  } else {
+
+    map<int, Graph *> *D = new map<int, Graph *>();    
+    set_difference(C->begin(), C->end(), q_plus->S_star->begin(), q_plus->S_star->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
+    C = D; 
+  
+  }
    
-  //paper  if-else same 
 }
+
 Entry * BestFeature(Q_Heap *H, map<int, Graph *> *C ){
     Entry *q = new Entry;
     q = H->top();
@@ -143,6 +360,3 @@ Entry * BestFeature(Q_Heap *H, map<int, Graph *> *C ){
     return q; 
 }
 
-int main() {
-    return 0;
-}
