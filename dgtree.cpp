@@ -97,6 +97,8 @@ void treeGrow(DGTreeNode *root) {
         g_plus = bestFeature(H, &C);
         
         if(g_plus == NULL){
+           //cout<<"Returned NULL\n";
+           //exit(1);
            g_plus = new DGTreeNode;
            g_plus->fgraph = new vector<list<pair<int, int> > >(*(root->fgraph)); 
            g_plus->grow_edge = NULL;
@@ -159,9 +161,9 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
 //    cout << "BEST FEATURE g+ s* size BEFORE " << g_plus->S_star->size() << endl; 
  //   cout << "BEST FEATURE C size BEFORE " << C->size() << endl; 
 
-    if (C->size() == 1 && g_plus->S_star->size() == 1)
+    /*if (C->size() == 1 && g_plus->S_star->size() == 1)
         cout <<" C gid = " <<  C->begin()->first << " S*id " << g_plus->S_star->begin()->first << " Heap Size " << H->size() << endl;
-
+    */
     
     
 
@@ -169,7 +171,7 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
        map<int, Graph *> *new_S_star = new map<int, Graph *>();
 
        set_intersection(g_plus->S_star->begin(), g_plus->S_star->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*new_S_star, new_S_star->begin()));
-       delete g_plus->S_star;
+       //delete g_plus->S_star;
        g_plus->S_star = new_S_star;
 
        H->pop();

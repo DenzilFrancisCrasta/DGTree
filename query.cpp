@@ -71,12 +71,14 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
 
     q->score = score(q);
     H->push(q);
+    
+    int count=0;
+    while(!C->empty() && count<300){
 
-    while(!C->empty()){
-
+       count++;
        q = BestFeature(H,C);
       
-       cout << "C size at loop start" << C->size() << endl;
+       //cout << "C size at loop start" << C->size() << endl;
        if(q == NULL){
          //shouldn't come here --> indicates missing links/graphs in the index
          cerr<<"The index didn't cover all data graphs\n";
@@ -100,8 +102,14 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                     //A = A U gplus_S
                     map<int, Graph *> *newA = new map<int, Graph *>();
                     set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
-                    delete A;
+                    //delete A;
                     A = newA;
+                    
+                             map<int, Graph *> *D = new map<int, Graph *>();    
+                            set_difference(C->begin(), C->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
+                            C = D; 
+
+
 
                  } else {
                         
@@ -140,7 +148,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                                   int Q_valence = elist_itr->second;
 
                                   if (Q_valence == valence && vlabel == gylabel) {
-                                       if (find((**mitr).begin(), (**mitr).end(), v) != (**mitr).end()) {
+                                       if (find((**mitr).begin(), (**mitr).end(), v) == (**mitr).end()) {
                                         
                                             new_match_found = true;
                                             break ; 
@@ -166,12 +174,12 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                              if (new_match_found) {
                                 map<int, Graph *> *newA = new map<int, Graph *>();
                                 set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
-                                delete A;
+                                //delete A;
                                 A = newA;
                              }
 
 
-                            cout << "gplus size at loop end" << g_plus->S->size() << endl;
+                          //  cout << "gplus size at loop end" << g_plus->S->size() << endl;
                             map<int, Graph *> *D = new map<int, Graph *>();    
                             set_difference(C->begin(), C->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
                             C = D; 
@@ -187,7 +195,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
              else {
                   
                  FeatureExpansion(Q, q, g_plus, H, C); //Put all children on heap with scores
-                 cout << "gplus size after feature expansion" << g_plus->S->size() << endl;
+              //   cout << "gplus size after feature expansion" << g_plus->S->size() << endl;
              }
 
              itr++; 
@@ -195,7 +203,7 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
 
        }
        
-       cout << "C size at loop end" << C->size() << endl;
+ //      cout << "C size at loop end" << C->size() << endl;
     }
     
    return A;     
@@ -223,6 +231,7 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
       // add to answer set or return NULL; will it come here?
       // this code cannot be reached since grow_edge is NULL only in leaf nodes, which gets checked in the if part, else part calls this FeatureExpansion function.
        cerr << "We shouldnt reach here. Houston we have a problem" << endl;
+       exit(1);
    }
    else {
       int ui = g_plus->grow_edge->x;
@@ -251,7 +260,7 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
                   int Q_valence = elist_itr->second;
 
                   if (Q_valence == valence && vlabel == gylabel) {
-                       if (find((**itr).begin(), (**itr).end(), v) != (**itr).end()) {
+                       if (find((**itr).begin(), (**itr).end(), v) == (**itr).end()) {
                           
                              vector<int> *m = new vector<int>(**itr); 
                              m->push_back(v);
@@ -319,21 +328,22 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
 Entry * BestFeature(Q_Heap *H, map<int, Graph *> *C ){
     Entry *q = new Entry;
     q = H->top();
-
+    H->pop();
     while (! includes(C->begin(), C->end(), q->S_star->begin(), q->S_star->end(), compareMapEntryNodes)) {
        map<int, Graph *> *new_S_star = new map<int, Graph *>();
 
        set_intersection(q->S_star->begin(), q->S_star->end(), C->begin(), C->end(), insert_iterator<map<int, Graph *> >(*new_S_star, new_S_star->begin()));
-       delete q->S_star;
+       //delete q->S_star;
        q->S_star = new_S_star;
 
-       H->pop(); //possibly causes segmentation fault on empty H
+       //H->pop(); //possibly causes segmentation fault on empty H
        if (!q->S_star->empty()) {
             q->score = score(q);
 	    H->push(q);
        }
 
        q = H->top(); //possibly causes segmentation fault on empty H
+       H->pop();
 
     } // end while g+.S* is not included in C 
 
