@@ -48,11 +48,11 @@ int main() {
 
   //printGraph(*data_graphs[1]);
  
-  cout << "total vertices " << total_vertices <<endl;
+  //cout << "total vertices " << total_vertices <<endl;
 
   //We have read all the data-graphs We can now start building the DGTree
   DGTreeNode *root = DGTreeConstruct(&data_graphs);
-  cout << root->matches_of->size() << endl;
+  //cout << root->matches_of->size() << endl;
 
   ifstream qfile(query_file);
   if (!qfile) {
