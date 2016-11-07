@@ -14,8 +14,7 @@ float score(Entry *node) {
    return score;
 }
 
-/*
-bool isAnEdge(adj_list_t *adj_list, int u, int v) {
+bool isAnEdge1(adj_list_t *adj_list, int u, int v, int val) {
     
     // u is larger than the size of the list 
     if (u >= adj_list->size())
@@ -25,13 +24,12 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v) {
     edge_list& elist = (*(adj_list))[u];
     
     for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
-        if (elist_itr->first == v)
+        if (elist_itr->first == v && elist_itr->second == val)
             return true;
     }    
 
     return false;
 }
-*/
 
 map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
 
@@ -97,12 +95,16 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                  // g_plus is a leaf
                  if (g_plus->grow_edge == NULL) {
 
+                    if(g_plus->S->size() > 1){
+                       cout<<"Assumption that one graph in leaf - NULL grow edge\n";
+                    }
+
                     //A = A U gplus_S
                     map<int, Graph *> *newA = new map<int, Graph *>();
                     set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
-                    //delete A;
+                    delete A;
                     A = newA;
-                    
+                    //remove S (or A; same) from candidate set
                              map<int, Graph *> *D = new map<int, Graph *>();    
                             set_difference(C->begin(), C->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*D, D->begin())); 
                             C = D; 
@@ -114,6 +116,9 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                     // check to extend each match; iterate over all matches in q
                     // similar to FeatureExpansion logic
                     // paper
+                     if(g_plus->S->size() > 1){
+                        cout<<"Assumption that one graph in leaf WRONG!! not NULL grow edge\n";
+                     }
 
 
                       int ui = g_plus->grow_edge->x;
@@ -121,6 +126,8 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                       string gxlabel = g_plus->grow_edge->x_label;
                       string gylabel = g_plus->grow_edge->y_label;
                       int valence = g_plus->grow_edge->valence;
+
+                      int flag =0;
 
 
                       list<vector<int> *>::const_iterator mitr = q->matches->begin(); 
@@ -146,8 +153,8 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                                   int Q_valence = elist_itr->second;
 
                                   if (Q_valence == valence && vlabel == gylabel) {
-                                       if (find((**mitr).begin(), (**mitr).end(), v) == (**mitr).end()) {
-                                        
+                                       if (find((**mitr).begin(), (**mitr).end(), v) == (**mitr).end()) { //v not already mapped
+                                            flag = 1;
                                             new_match_found = true;
                                             break ; 
                                        }
@@ -158,22 +165,33 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
 
                                    
                              } // end if edge type open
-                             else {
-                                 // closed edge case 
+                             else {    // closed edge case 
+                                 string vlabel = Q->vertex_labels[(**mitr)[uj]];
+                                 if(vlabel == gylabel) {//check v's label?
 
-                                 if (isAnEdge(Q->adjacencyList, (**mitr)[ui], (**mitr)[uj])) {
+                                     if (isAnEdge1(Q->adjacencyList, (**mitr)[ui], (**mitr)[uj], valence)) {
+                                            //check valence
+                                            flag =0;
                                             new_match_found = true;
                                  
-                                  }// end if is an edge
-                         
+                                      }// end if is an edge
+                                }
                              } //end else closed edge case
                              
                              // Add an element to the answer set
                              if (new_match_found) {
                                 map<int, Graph *> *newA = new map<int, Graph *>();
                                 set_union(A->begin(), A->end(), g_plus->S->begin(), g_plus->S->end(), insert_iterator<map<int, Graph *> >(*newA, newA->begin())); 
+
+                                new_match_found = false;
+
                                 //delete A;
                                 A = newA;
+                                if(flag){
+                                    cout<<"OPEN edge"; 
+                                } else {
+                                    cout<<"CLOSE edge"; 
+                                } cout<<g_plus->S->begin()->first<<endl;
                              }
 
 
@@ -229,7 +247,7 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
       // The map in parent is sufficient
       // add to answer set or return NULL; will it come here?
       // this code cannot be reached since grow_edge is NULL only in leaf nodes, which gets checked in the if part, else part calls this FeatureExpansion function.
-       cerr << "We shouldnt reach here. Houston we have a problem" << endl;
+       cerr << "We shouldnt reach here. Houston we have a problem. Possibly aliens know dark magic!" << endl;
        exit(1);
    }
    else {
@@ -274,14 +292,19 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
                    
              } // end if edge type open
              else {
+               string vlabel = Q->vertex_labels[(**itr)[uj]];
+ 
                  // closed edge case 
+               if(vlabel == gylabel) {//check v's label?
 
-                 if (isAnEdge(Q->adjacencyList, (**itr)[ui], (**itr)[uj])) {
+
+                 if (isAnEdge1(Q->adjacencyList, (**itr)[ui], (**itr)[uj], valence)) {
                              vector<int> *m = new vector<int>(**itr); 
                              (*(q_plus->matches)).push_back(m); 
 
                  
                  }// end if is an edge
+               }
              
              } //end else closed edge case
           }// end if uilabel = gxlabel

@@ -56,7 +56,7 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
    return root;
 }
 
-bool isAnEdge(adj_list_t *adj_list, int u, int v) {
+bool isAnEdge(adj_list_t *adj_list, int u, int v, int val) {
     
     // u is larger than the size of the list 
     if (u >= adj_list->size())
@@ -66,7 +66,7 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v) {
     edge_list& elist = (*(adj_list))[u];
     
     for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
-        if (elist_itr->first == v)
+        if (elist_itr->first == v && elist_itr->second == val)
             return true;
     }    
 
@@ -253,7 +253,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                   }
 
 
-                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
+                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj, valence)) {
 		      //construct the key to search 
 		      edge *e = makeEdge(ui, uj, valence, G->vertex_labels[w],G->vertex_labels[v]); 
 		      // g+ = H.find((ui, uj));
@@ -349,7 +349,7 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
                   }
 
 
-                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj)) {
+                  if ( uj > ui  && !isAnEdge(node->fgraph, ui, uj, valence)) {
 		      //construct the key to search 
 		      edge *e = makeEdge(ui, uj, valence, G->vertex_labels[w],G->vertex_labels[v]); 
 		      // g+ = H.find((ui, uj));
