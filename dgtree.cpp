@@ -131,7 +131,8 @@ void treeGrow(DGTreeNode *root) {
             treeGrow(g_plus);
         } else {
             // we have reached a leaf node which holds a data-graph   
-            //g_plus->fgraph = g_plus->S_star->begin()->second->adjacencyList;   
+              g_plus->fgraph = g_plus->S_star->begin()->second->adjacencyList;   
+              *(g_plus->vertex_labels) = g_plus->S_star->begin()->second->vertex_labels; 
               g_plus->S = g_plus->S_star;
 
         }// end reached a leaf node 

@@ -2,10 +2,10 @@
 #include <fstream>
 #include "query.h"
 
-int main() {
+int main(int argc, char **argv) {
   char c; 
-  const char *data_file = "dataset.txt";
-  const char *query_file = "input.txt";
+  char *data_file = argv[1];
+  char *query_file = argv[2];
   ifstream infile(data_file);
  
   if (!infile) {
