@@ -99,6 +99,7 @@ void treeGrow(DGTreeNode *root) {
         if(g_plus == NULL){
            //cout<<"Returned NULL\n";
            //exit(1);
+           cout<<"NULL grow edge (best feature)\n";
            g_plus = new DGTreeNode;
            g_plus->fgraph = new vector<list<pair<int, int> > >(*(root->fgraph)); 
            g_plus->grow_edge = NULL;
@@ -115,6 +116,8 @@ void treeGrow(DGTreeNode *root) {
         int ui = g_plus->grow_edge->x;
         int uj = g_plus->grow_edge->y;
         int valence = g_plus->grow_edge->valence;
+
+        cout<<ui<<" "<<uj<<" "<<valence<<" "<<g_plus->grow_edge->x_label<<" "<<g_plus->grow_edge->y_label<<endl;
 
         // allocate storage in the feature graph for the open edge
         if (g_plus->edge_type == OPEN) {
@@ -149,6 +152,7 @@ void treeGrow(DGTreeNode *root) {
 
    // cout << "Candidate Features size " << H->size()<< endl;
    // printAndDestroyHeap(H);
+   //cout<<"\n\nNumber of leaves = "<<leafcount<<endl;
 }
 
 bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>& p2) {
@@ -298,7 +302,14 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 		      } 
 		      else {
                           //g+ is not empty. Just add G to g+.S_star
-		          (*(g_plus_itr->second->S_star))[graph_id] = G;  
+                          //check if labels are same (Check with the popped nodes labels & valency)
+			  g_plus = new DGTreeNode;
+
+			  g_plus = g_plus_itr->second;
+	
+                          if(e->x_label == g_plus->grow_edge->x_label && e->y_label == g_plus->grow_edge->y_label && e->valence == g_plus->grow_edge->valence){
+		            (*(g_plus_itr->second->S_star))[graph_id] = G;  
+                          }
 		      }
                   }// end if we have to add the edge ui,uj
               } // end for every neighbor of f(ui) in G 
@@ -355,25 +366,32 @@ DG_Heap *candidateFeatures(DGTreeNode *node) {
 		      // g+ = H.find((ui, uj));
 		      map<edge, DGTreeNode *, compare_edges>::iterator g_plus_itr = H_map.find(*e);
 		      
-		      // g+ = empty ie no such dgtreenode is found
+		      // g+ != empty ie such a dgtreenode is found
 		      if (g_plus_itr != H_map.end()) {
+                         //check if labels are same (Check with the popped nodes labels & valency)
+                	 g_plus = new DGTreeNode;
 
-			  g_plus = g_plus_itr->second;
-			  (*(g_plus->S))[graph_id] = G;  
+			 g_plus = g_plus_itr->second;
+	
+                         if(e->x_label == g_plus->grow_edge->x_label && e->y_label == g_plus->grow_edge->y_label && e->valence == g_plus->grow_edge->valence){
+	
 
-			  if (g_plus->edge_type == OPEN) {
+			    g_plus = g_plus_itr->second;
+			    (*(g_plus->S))[graph_id] = G;  
+
+			    if (g_plus->edge_type == OPEN) {
                                 
-                             vector<int> *m = new vector<int>(**f); 
-                             m->push_back(v);
-                             (*(g_plus->matches_of))[graph_id].push_back(m); 
+                               vector<int> *m = new vector<int>(**f); 
+                               m->push_back(v);
+                               (*(g_plus->matches_of))[graph_id].push_back(m); 
 			  
-			  } else {
-
-                             vector<int> *m = new vector<int>(**f); 
-                             (*(g_plus->matches_of))[graph_id].push_back(m); 
+			    } else {
+                               cout<<graph_id<<" close edge\n"; 
+                               vector<int> *m = new vector<int>(**f); 
+                               (*(g_plus->matches_of))[graph_id].push_back(m); 
 			  }
 
-		      
+		       }
 		      } 
                   }// end if we have to add the edge ui,uj
               } // end for every neighbor of f(ui) in G 

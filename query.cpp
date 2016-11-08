@@ -176,6 +176,9 @@ map<int, Graph *> *search(DGTreeNode *root, Graph *Q) {
                                  
                                       }// end if is an edge
                                 }
+                                else {
+                                    cout<<"v labels didn't match\n";
+                                }
                              } //end else closed edge case
                              
                              // Add an element to the answer set
@@ -304,6 +307,9 @@ void FeatureExpansion(Graph *Q, Entry *q, DGTreeNode *g_plus, Q_Heap *H, map<int
 
                  
                  }// end if is an edge
+               }
+               else {
+                    cout<<"v labels didn't match\n";
                }
              
              } //end else closed edge case
