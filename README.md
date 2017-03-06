@@ -1,4 +1,4 @@
 # DGTree
-DGTree an index built using inclusion logic to perform fast supergraph search in large graph databases
-The current implementation produces all the correct answers, but, also allows some non isomorphic graphs to creep into the answer set. 
-We are working on fixing this issue.
+DGTree is tree based index of frequent graph sub-structures to perform fast scalable supergraph search in large graph databases. 
+
+We can currently process 200000 graph queries in about 3 minutes
