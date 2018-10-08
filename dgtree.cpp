@@ -10,7 +10,8 @@
  */
 float BIAS_SCORE;
 
-DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
+DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) 
+{
    DGTreeNode *root;
    int graph_id;
    Graph *G;
@@ -34,14 +35,16 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
 
    // For all data graphs create the set of matches.
    // Initially all matches will have single vertex
-   while (itr != data_graphs->end()) {
+   while (itr != data_graphs->end()) 
+   {
  
       // get graph id and data-graph from the map
       graph_id = itr->first;
       G = itr->second; // a data graph
 
       // for every vertex of data-graph
-      for (int i=0; i<G->vertex_count; i++) {
+      for (int i=0; i<G->vertex_count; i++) 
+      {
           f = new vector<int>(1);
           f->at(0) = i;
           (*(root->matches_of))[graph_id].push_back(f);
@@ -56,7 +59,8 @@ DGTreeNode *DGTreeConstruct(map<int, Graph *> *data_graphs) {
    return root;
 }
 
-bool isAnEdge(adj_list_t *adj_list, int u, int v, int val) {
+bool isAnEdge(adj_list_t *adj_list, int u, int v, int val) 
+{
     
     // u is larger than the size of the list 
     if (u >= adj_list->size())
@@ -65,7 +69,8 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v, int val) {
     // get the edge list of u
     edge_list& elist = (*(adj_list))[u];
     
-    for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) {
+    for (edge_list_itr elist_itr = elist.begin(); elist_itr != elist.end(); elist_itr++) 
+    {
         if (elist_itr->first == v && elist_itr->second == val)
             return true;
     }    
@@ -73,7 +78,8 @@ bool isAnEdge(adj_list_t *adj_list, int u, int v, int val) {
     return false;
 }
 
-void printAndDestroyHeap(DG_Heap *H) {
+void printAndDestroyHeap(DG_Heap *H) 
+{
     while (!H->empty()) {
        DGTreeNode *p = H->top(); 
        cout << p->grow_edge->x_label << "-" 
@@ -84,7 +90,8 @@ void printAndDestroyHeap(DG_Heap *H) {
     }
 }
 
-void treeGrow(DGTreeNode *root) {
+void treeGrow(DGTreeNode *root) 
+{
     // Heap of possible child nodes of root ordered by score for root->fgraph
     DG_Heap *H;
     DGTreeNode *g_plus;
@@ -120,14 +127,16 @@ void treeGrow(DGTreeNode *root) {
         cout<<ui<<" "<<uj<<" "<<valence<<" "<<g_plus->grow_edge->x_label<<" "<<g_plus->grow_edge->y_label<<endl;
 
         // allocate storage in the feature graph for the open edge
-        if (g_plus->edge_type == OPEN) {
+        if (g_plus->edge_type == OPEN) 
+	{
             g_plus->fgraph->push_back(list<pair<int, int> >());
         }
 
         (*(g_plus->fgraph))[ui].push_back(make_pair(uj, valence));
         (*(g_plus->fgraph))[uj].push_back(make_pair(ui, valence));
         
-        if (g_plus->S_star->size() > 1) {
+        if (g_plus->S_star->size() > 1) 
+	{
             treeGrow(g_plus);
         } else {
             // we have reached a leaf node which holds a data-graph   
@@ -156,11 +165,13 @@ void treeGrow(DGTreeNode *root) {
    //cout<<"\n\nNumber of leaves = "<<leafcount<<endl;
 }
 
-bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>& p2) {
+bool compareMapDGTreeNodes(const pair<int, Graph *>& p1,const pair<int, Graph *>& p2) 
+{
     return p1.first < p2.first;
 }
 
-DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
+DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) 
+{
     DGTreeNode *g_plus = H->top();
    
 //    cout << "BEST FEATURE g+ s* size BEFORE " << g_plus->S_star->size() << endl; 
@@ -180,7 +191,8 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
        g_plus->S_star = new_S_star;
 
        H->pop();
-       if (!g_plus->S_star->empty()) {
+       if (!g_plus->S_star->empty())
+       {
             g_plus->score = score(g_plus);
 	    H->push(g_plus);
        }
@@ -195,7 +207,8 @@ DGTreeNode *bestFeature(DG_Heap *H, map<int, Graph *> *C) {
     return g_plus;
 }
 
-edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label) {
+edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label)
+{
     edge *e = new edge;
     e->x = ui;
     e->y = uj;
@@ -206,7 +219,8 @@ edge *makeEdge(int ui, int uj, int valence, string x_label, string y_label) {
     return e;
 }
 
-DG_Heap *candidateFeatures(DGTreeNode *node) {
+DG_Heap *candidateFeatures(DGTreeNode *node)
+{
    // a new heap to store DGTreeNodes
    DG_Heap *H = new DG_Heap(); 
    map<edge, DGTreeNode *, compare_edges> H_map; // stores the possible children of node for fast retrieval by an edge
