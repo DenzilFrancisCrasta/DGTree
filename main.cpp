@@ -8,7 +8,8 @@ int main(int argc, char **argv) {
   char *query_file = argv[2];
   ifstream infile(data_file);
  
-  if (!infile) {
+  if (!infile) 
+  {
      cerr << "ERROR: Failed to open file " << data_file << endl;
      return 1;
   }
@@ -17,7 +18,8 @@ int main(int argc, char **argv) {
 
   int total_vertices = 0;
 
-  while (infile >> c) {
+  while (infile >> c) 
+  {
       Graph *g = new Graph; 
 
       infile >> g->id;
@@ -36,7 +38,8 @@ int main(int argc, char **argv) {
       
       int v1, v2, valence;
       infile >> g->edge_count;
-      for (int i=0; i< (g->edge_count); i++) {
+      for (int i=0; i< (g->edge_count); i++) 
+      {
           infile >> v1 >> v2 >> valence;
           (*g->adjacencyList)[v1].push_back(make_pair(v2, valence)); 
           (*g->adjacencyList)[v2].push_back(make_pair(v1, valence)); 
@@ -55,12 +58,14 @@ int main(int argc, char **argv) {
   //cout << root->matches_of->size() << endl;
 
   ifstream qfile(query_file);
-  if (!qfile) {
+  if (!qfile) 
+  {
      cerr << "ERROR: Failed to open file " << query_file << endl;
      return 1;
   }
 
-  while (qfile >> c) {
+  while (qfile >> c) 
+  {
 
       Graph *g = new Graph; 
 
@@ -80,7 +85,8 @@ int main(int argc, char **argv) {
       
       int v1, v2, valence;
       qfile >> g->edge_count;
-      for (int i=0; i< (g->edge_count); i++) {
+      for (int i=0; i< (g->edge_count); i++) 
+      {
           qfile >> v1 >> v2 >> valence;
           (*g->adjacencyList)[v1].push_back(make_pair(v2, valence)); 
           (*g->adjacencyList)[v2].push_back(make_pair(v1, valence)); 
